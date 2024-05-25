@@ -307,7 +307,7 @@ class Tor:
 class DiscordApi:
     version_number = 10
     base_url = "https://discord.com/api"
-    url = f"https://discord.com/api/v{version_number}"
+    url = f"{base_url}/v{version_number}"
 
     class Channel:
         # GET
@@ -517,11 +517,20 @@ class DiscordApi:
             return data
 
         # POST
-        def create_message(channel_id):
+        def create_message(channel_id, message):
             url = f"{DiscordApi.url}/channels/{channel_id}/messages"
             json_form_params = ['content?*', 'nonce?', 'tts?', 'embeds?*', 'allowed_mentions?', 'message_reference?', 'components?*',
                                 'sticker_ids?*', 'files[n]?*', 'payload_json?', 'attachments?', 'flags?', 'enforce_nonce?']
-        
+            headers = {'Authorization': user_token, 'User-Agent': random.choice(user_agents)}
+
+            proxy = random.choice(proxies)
+            proxy_dict = {'http': f'socks5h://{proxy}', 'https': f'socks5h://{proxy}'}
+
+            content = {"content": message}
+            data = fetch_data(url=url, method="put", headers=headers, proxies=proxy_dict, data=content)
+            print(json.dumps(data, indent=True), '\n')
+            return data
+
         def crosspost_message(channel_id, message_id):
             url = f"{DiscordApi.url}/channels/{channel_id}/messages/{message_id}/crosspost"
 
@@ -1225,6 +1234,18 @@ class DiscordApi:
 
         def get_user(user_id):
             url = f"{DiscordApi.url}/users/{user_id}"
+            headers = {'Authorization': user_token, 'User-Agent': random.choice(user_agents)}
+
+            proxy = random.choice(proxies)
+            proxy_dict = {'http': f'socks5h://{proxy}', 'https': f'socks5h://{proxy}'}
+
+            data = fetch_data(url=url, method="get", headers=headers, proxies=proxy_dict)
+            print(json.dumps(data, indent=True), '\n')
+            return data
+        
+        def get_current_user_channels():
+            url = f"{DiscordApi.url}/users/@me/channels"
+
             headers = {'Authorization': user_token, 'User-Agent': random.choice(user_agents)}
 
             proxy = random.choice(proxies)
